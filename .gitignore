@@ -1,2 +1,4 @@
 /data
 *.pyc
+/visualizer/images
+/visualizer/log.txt

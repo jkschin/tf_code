@@ -13,8 +13,8 @@ def parse(DATA_DIR, filename):
 	labels[labels == 10] = 0
 	return images, labels, num_examples
 
-images, labels, num_examples = parse((os.path.abspath('../data/svhn/raw')), 'extra_32x32.mat') 
+images, labels, num_examples = parse((os.path.abspath('../data/svhn/raw')), 'train_32x32.mat') 
 print images.shape
-convert_to(images,labels,"svhn_extra",num_examples)
+convert_to(images,labels,"svhn_train",num_examples)
 
 

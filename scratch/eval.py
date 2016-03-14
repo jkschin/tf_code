@@ -46,7 +46,7 @@ import combined
 import inputs
 from constants import *
 
-def eval_once(saver, summary_writer, top_k_op, labels, summary_op):
+def eval_once(saver, summary_writer, top_k_op_batch, top_k_op_single, labels, summary_op):
   """Run Eval once.
 
   Args:
@@ -75,21 +75,28 @@ def eval_once(saver, summary_writer, top_k_op, labels, summary_op):
       for qr in tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS):
         threads.extend(qr.create_threads(sess, coord=coord, daemon=True,
                                          start=True))
-
-      # num_iter = int(math.ceil(NUM_EXAMPLES / BATCH_SIZE))
-      num_iter = 26032
-      true_count = 0  # Counts the number of correct predictions.
-      # total_sample_count = num_iter * BATCH_SIZE
-      step = 0
-      while step < num_iter and not coord.should_stop():
-        prediction, label = sess.run([top_k_op[1],labels])
-        if prediction==label:
-          true_count+=1
-        print (prediction, label)
-        step += 1
-
-      # Compute precision @ 1.
-      precision = true_count / num_iter
+      if BATCH_EVAL:
+        print ("BATCH EVALUATION")
+        num_iter = int(math.ceil(NUM_EXAMPLES / BATCH_SIZE))
+        true_count = 0  # Counts the number of correct predictions.
+        total_sample_count = num_iter * BATCH_SIZE
+        step = 0
+        while step < num_iter and not coord.should_stop():
+          predictions = sess.run([top_k_op_batch])
+          true_count += np.sum(predictions)
+          step += 1
+          print (step)
+        precision = true_count / total_sample_count
+      else:
+        true_count = 0 
+        step = 0
+        while step < NUM_EXAMPLES_IN_TEST and not coord.should_stop():
+          prediction, label = sess.run([top_k_op_single[1],labels])
+          if prediction==label:
+            true_count+=1
+          print (prediction, label)
+          step += 1
+        precision = true_count / num_iter
       print('%s: precision @ 1 = %.3f' % (datetime.now(), precision))
 
       summary = tf.Summary()
@@ -114,8 +121,8 @@ def evaluate():
     logits = combined.inference(images)
 
     # Calculate predictions.
-    # top_k_op = tf.nn.in_top_k(logits, labels, 1)
-    top_k_op = tf.nn.top_k(logits, k=1)
+    top_k_op_batch = tf.nn.in_top_k(logits, labels, 1)
+    top_k_op_single = tf.nn.top_k(logits, k=1)
 
     # Restore the moving average version of the learned variables for eval.
     variable_averages = tf.train.ExponentialMovingAverage(
@@ -131,7 +138,7 @@ def evaluate():
                                             graph_def=graph_def)
 
     while True:
-      eval_once(saver, summary_writer, top_k_op, labels, summary_op)
+      eval_once(saver, summary_writer, top_k_op_batch, top_k_op_single, labels, summary_op)
       if RUN_ONCE:
         break
       time.sleep(EVAL_INTERVAL_SECS)

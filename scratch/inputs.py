@@ -73,7 +73,7 @@ Outputs:
 '''
 def generate_image_and_label_batch(image, label, min_queue_examples,
                                     batch_size, train):
-  if train:
+  if TRAIN or BATCH_EVAL:
     num_preprocess_threads = 16
     images, label_batch = tf.train.shuffle_batch(
         [image, label],
@@ -89,11 +89,11 @@ def generate_image_and_label_batch(image, label, min_queue_examples,
         capacity=min_queue_examples + 3 * batch_size)
 
   # Display the training images in the visualizer.
-  tf.image_summary('images', images)
+  tf.image_summary('images', images, max_images=100)
   return images, tf.reshape(label_batch, [batch_size])
 
 def distortions(image):
-  distorted_image = tf.random_crop(image, [IMAGE_SIZE, IMAGE_SIZE, 3])
+  distorted_image = tf.random_crop(image, [NETWORK_IMAGE_SIZE, NETWORK_IMAGE_SIZE, 3])
   distorted_image = tf.image.random_brightness(distorted_image, max_delta=63)
   distorted_image = tf.image.random_contrast(distorted_image, lower=0.2, upper=1.8)
   return distorted_image
@@ -106,12 +106,20 @@ def inputs():
     filename = os.path.join(DATA_DIR, TEST_FILE)
   filename_queue = tf.train.string_input_producer([filename])
   image, label, height, width, depth = read_and_decode(filename_queue)
-  image = tf.reshape(image, [IMAGE_SIZE, IMAGE_SIZE, 3])
+  image = tf.reshape(image, tf.pack([height, width, 3]))
+  # image = tf.reshape(image, [INPUT_IMAGE_SIZE, INPUT_IMAGE_SIZE, 3])
+  image = tf.cast(image, tf.float32)
 
   if TRAIN:
     image = distortions(image)
   else:
-    image = tf.image.resize_image_with_crop_or_pad(image, IMAGE_SIZE, IMAGE_SIZE)
+    '''
+    This is the really retarded part of TensorFlow where the method below
+    requires knowing the static shape. I need a fix ASAP.
+    '''
+    print ("No Distortions")
+    image.set_shape([INPUT_IMAGE_SIZE, INPUT_IMAGE_SIZE, 3])
+    image = tf.image.resize_image_with_crop_or_pad(image, NETWORK_IMAGE_SIZE, NETWORK_IMAGE_SIZE)
 
   # Subtract off the mean and divide by the variance of the pixels.
   float_image = tf.image.per_image_whitening(image)

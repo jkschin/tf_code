@@ -3,11 +3,9 @@ import os
 from tfrecords_main import *
 from PIL import Image
 import csv
+import numpy as np
 
-DATA_DIR = "/home/sep/Downloads"
-filename = "train.csv"
-
-def parse_train(filename):
+def parse_train(DATA_DIR, filename):
 	csv = np.genfromtxt(os.path.join(DATA_DIR,filename), delimiter=',')[1:]
 	csv = np.array(csv, np.uint8)
 	csv = csv.T
@@ -21,7 +19,7 @@ def parse_train(filename):
 	images = np.reshape(csv,[num_examples,28,28,3])
 	return images, labels, num_examples
 
-def parse_test(filename):
+def parse_test(DATA_DIR, filename):
 	csv = np.genfromtxt(os.path.join(DATA_DIR,filename), delimiter=',')[1:]
 	csv = np.array(csv, np.uint8)
 	num_examples = len(csv)
@@ -34,11 +32,12 @@ def parse_test(filename):
 	return images, labels, num_examples
 
 
-# images, labels, num_examples = parse_train("train.csv")
+# images, labels, num_examples = parse_train((os.path.abspath('../data/kaggle_mnist/raw')), 'train.csv') 
 # print (images.shape)
 # convert_to(images,labels,"kaggle_mnist_train",num_examples)
 
-images, labels, num_examples = parse_test("test.csv")
-print (images.shape)
-convert_to(images, labels, "kaggle_mnist_test", num_examples)
+# images, labels, num_examples = parse_test("test.csv")
+# print (images.shape)
+# convert_to(images, labels, "kaggle_mnist_test", num_examples)
+
 

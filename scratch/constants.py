@@ -13,11 +13,11 @@ TRAIN_DIR = os.path.abspath(os.path.join('../data',DATASET,'train'))
 EVAL_DIR = os.path.abspath(os.path.join('../data',DATASET,'eval'))
 CHECKPOINT_DIR = os.path.abspath(os.path.join('../data',DATASET,'train_20000'))
 # TRAIN_FILE = DATASET + '_train.tfrecords'
-# TRAIN_FILE = 'kaggle_svhn_combined.tfrecords'
+TRAIN_FILE = 'kaggle_svhn_combined.tfrecords'
 # TEST_FILE = DATASET + '_test.tfrecords'
-TEST_FILE = 'kaggle_mnist_train.tfrecords'
+# TEST_FILE = 'kaggle_mnist_train.tfrecords'
 
-TRAIN = False
+TRAIN = True
 BATCH_SIZE = 128
 BATCH_EVAL = True 
 INPUT_IMAGE_SIZE = 28

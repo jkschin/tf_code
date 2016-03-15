@@ -10,10 +10,11 @@ def parse(DATA_DIR, filename):
 	width, height, depth, num_examples = X.shape
 	images = X.reshape([width * height * depth, num_examples]).T.reshape([num_examples, width, height, depth])
 	labels = y.reshape(num_examples)
-	return images, labels-1, num_examples
+	labels[labels == 10] = 0
+	return images, labels, num_examples
 
-# images, labels, num_examples = parse((os.path.abspath('../data/svhn/raw')), 'train_32x32.mat') 
-# print images.shape
-# convert_to(images,labels-1,"svhn_test",num_examples)
+images, labels, num_examples = parse((os.path.abspath('../data/svhn/raw')), 'extra_32x32.mat') 
+print images.shape
+convert_to(images,labels,"svhn_extra",num_examples)
 
 

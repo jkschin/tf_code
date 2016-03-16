@@ -36,8 +36,8 @@ def parse_test(DATA_DIR, filename):
 # print (images.shape)
 # convert_to(images,labels,"kaggle_mnist_train",num_examples)
 
-# images, labels, num_examples = parse_test("test.csv")
-# print (images.shape)
-# convert_to(images, labels, "kaggle_mnist_test", num_examples)
+images, labels, num_examples = parse_test((os.path.abspath('../data/kaggle_mnist/raw')), "test.csv")
+print (images.shape)
+convert_to(images, labels, "kaggle_mnist_test", num_examples)
 
 

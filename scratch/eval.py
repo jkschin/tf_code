@@ -87,18 +87,18 @@ def eval_once(saver, summary_writer, top_k_op_batch, top_k_op_single, labels, su
           step += 1
           print (step)
         precision = true_count / total_sample_count
+        print('%s: precision @ 1 = %.3f' % (datetime.now(), precision))
       else:
         true_count = 0 
         step = 0
+        print("Writing to results.txt")
+        out = open("results.txt", "w")
         while step < NUM_EXAMPLES_IN_TEST and not coord.should_stop():
-          prediction, label = sess.run([top_k_op_single[1],labels])
-          if prediction==label:
-            true_count+=1
-          print (prediction, label)
+          prediction = sess.run([top_k_op_single[1]])
+          print (prediction)
+          out.write("%d\n" %int(prediction[0][0]))
           step += 1
-        precision = true_count / num_iter
-      print('%s: precision @ 1 = %.3f' % (datetime.now(), precision))
-
+        print("Finished writing to results.txt")
       summary = tf.Summary()
       summary.ParseFromString(sess.run(summary_op))
       summary.value.add(tag='Precision @ 1', simple_value=precision)

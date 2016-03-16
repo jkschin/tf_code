@@ -25,7 +25,10 @@ def read_and_decode(filename_queue):
 
 f = open("log.txt","w")
 with tf.Session() as sess:
-  filename_queue = tf.train.string_input_producer(["../data/svhn/svhn_train.tfrecords"])
+  if tf.gfile.Exists("images"):
+    tf.gfile.DeleteRecursively("images")
+  tf.gfile.MakeDirs("images")
+  filename_queue = tf.train.string_input_producer(["../data/svhn/kaggle_svhn_combined.tfrecords"])
   image, label, height, width, depth = read_and_decode(filename_queue)
   image = tf.reshape(image, tf.pack([height, width, 3]))
   image.set_shape([32,32,3])

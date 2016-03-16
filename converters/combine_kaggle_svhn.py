@@ -24,11 +24,11 @@ def shuffle_images_and_labels(images, labels, shuffle_count):
 	num_examples = images.shape[0]
 	for i in xrange(shuffle_count):
 		a, b = random.randint(0,num_examples-1),random.randint(0,num_examples-1)
-		img_copy = images[a]
-		images[a] = images[b]
+		img_copy = np.copy(images[a])
+		images[a] = np.copy(images[b])
 		images[b] = img_copy
-		label_copy = labels[a]
-		labels[a] = labels[b]
+		label_copy = np.copy(labels[a])
+		labels[a] = np.copy(labels[b])
 		labels[b] = label_copy
 
 print ("Converting Kaggle MNIST Data")

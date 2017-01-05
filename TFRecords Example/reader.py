@@ -27,15 +27,19 @@ Pointers:	Remember to run init_op
 '''
 def run():
 	with tf.Graph().as_default():
-		filename_queue = tf.train.string_input_producer(["sample.tfrecords"],num_epochs=1)
-		images = read_and_decode(filename_queue)
-		image_shape = tf.shape(images)
-		init_op = tf.initialize_all_variables()
 		with tf.Session() as sess:
+			filename_queue = tf.train.string_input_producer(["sample.tfrecords"], num_epochs=1)
+			images = read_and_decode(filename_queue)
+			image_shape = tf.shape(images)
+			init_op = tf.global_variables_initializer()
+			sess.run(tf.local_variables_initializer())
 			sess.run(init_op)
 			coord = tf.train.Coordinator()
 			threads = tf.train.start_queue_runners(coord=coord)
-			img = sess.run([images])
+			img = np.array(sess.run(images))
+			print img.shape
+			print img
+			print "Successful read"
 			coord.request_stop()
 			coord.join(threads)
 run()
